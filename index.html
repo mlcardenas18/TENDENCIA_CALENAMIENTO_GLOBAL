@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Índice de temperatura tierra-océano, LOTI</title> 
+<script data-require="d3@3.5.3" data-semver="3.5.3" src="https://d3js.org/d3.v5.min.js"></script>
+<!--  <script data-require="d3@3.5.3" data-semver="3.5.3" src="//cdnjs.cloudflare.com/ajax/libs/d3/3.5.3/d3.js"></script>-->
+  <style>
+    body {
+      font: 10px sans-serif;
+    }
+    
+    .axis path,
+    .axis line {
+      fill: none;
+      stroke: #000;
+      shape-rendering: crispEdges;
+    }
+    
+    .x.axis path {
+      display: none;
+    }
+    
+    .line {
+      fill: none;
+      stroke: steelblue;
+      stroke-width: 1.5px;
+    }
+  </style>
+</head>
+
+<body>
+    <h1>El calentamiento global, !una realidad que confirman los datos!</h1>
+<div class = a >
+    <p>
+        Con base en la información suministrada por la Nasa <A href="https://data.giss.nasa.gov/gistemp/">Índice de temperatura terrestre y oceaníca, LOTI</A>, en relación con las anomalías de la temperatura del planeta, en la siguiente visualización se muestra el comportamiento de éste índice a traves de los años.<br></br/>
+    </p>
+</div>
+<script>
+var myData = "date	Global	Hemisferio Norte	Hemisferio Sur\n\
+1959	.03	.12	-.06\n\
+1960	-.02	.08	-.12\n\
+1961	.06	.09	.03\n\
+1962	.04	.16	-.08\n\
+1963	.07	.16	-.02\n\
+1964	-.20	-.19	-.20\n\
+1965	-.10	-.13	-.08\n\
+1966	-.05	.00	-.09\n\
+1967	-.02	.03	-.07\n\
+1968	-.07	-.06	-.09\n\
+1969	.07	-.01	.16\n\
+1970	.03	-.03	.10\n\
+1971	-.09	-.16	-.03\n\
+1972	.01	-.18	.22\n\
+1973	.16	.10	.22\n\
+1974	-.08	-.20	.03\n\
+1975	-.01	-.06	.02\n\
+1976	-.11	-.21	.00\n\
+1977	.17	.11	.23\n\
+1978	.06	.02	.11\n\
+1979	.16	.08	.24\n\
+1980	.27	.16	.38\n\
+1981	.33	.39	.27\n\
+1982	.13	.05	.22\n\
+1983	.31	.26	.37\n\
+1984	.16	.04	.28\n\
+1985	.12	-.01	.24\n\
+1986	.18	.13	.24\n\
+1987	.33	.26	.41\n\
+1988	.41	.38	.44\n\
+1989	.29	.29	.29\n\
+1990	.44	.51	.37\n\
+1991	.41	.41	.41\n\
+1992	.22	.12	.32\n\
+1993	.24	.19	.29\n\
+1994	.31	.36	.25\n\
+1995	.45	.58	.31\n\
+1996	.34	.28	.39\n\
+1997	.47	.53	.41\n\
+1998	.62	.73	.52\n\
+1999	.40	.50	.29\n\
+2000	.40	.51	.30\n\
+2001	.54	.64	.43\n\
+2002	.62	.71	.54\n\
+2003	.61	.73	.49\n\
+2004	.53	.67	.40\n\
+2005	.67	.83	.51\n\
+2006	.61	.78	.45\n\
+2007	.64	.81	.46\n\
+2008	.51	.64	.38\n\
+2009	.63	.70	.57\n\
+2010	.70	.87	.53\n\
+2011	.58	.70	.45\n\
+2012	.62	.77	.47\n\
+2013	.65	.75	.54\n\
+2014	.73	.90	.56\n\
+2015	.87	1.13	.61\n\
+2016	.99	1.27	.71\n\
+2017	.90	1.12	.68\n";
+
+console.log("data",myData);
+
+    var margin = {
+        top: 30,
+        right: 100,
+        bottom: 50,
+        left: 50
+      },
+      width = 950 - margin.left - margin.right,
+      height = 500 - margin.top - margin.bottom;
+
+   // var parseDate = d3.timeParse("%Y%m%d");
+    var parseDate = d3.timeParse("%Y");
+
+    var x = d3.scaleTime()
+      .range([0, width+10]);
+
+    var y = d3.scaleLinear()
+      .range([height, 0]);
+
+    //var color = d3.scale.category10();
+    var color=d3.scaleOrdinal(d3.schemeCategory10);
+
+    var xAxis = d3.axisBottom()
+      .scale(x);
+
+    var yAxis = d3.axisLeft()
+      .scale(y);
+
+    var line = d3.line()
+      //.interpolate("basis")
+      .x(function(d) {return x(d.date);})
+      .y(function(d) {return y(d.temperature);});
+
+    var svg = d3.select("body").append("svg")
+      .attr("width", width + margin.left + margin.right)
+      .attr("height", height + margin.top + margin.bottom)
+      .append("g")
+      .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+    var data = d3.tsvParse(myData);
+      
+    console.log("datos parseados:",data);
+      
+    color.domain(d3.keys(data[0]).filter(function(key) {
+      return key !== "date";
+    }));
+
+    data.forEach(function(d) {
+      d.date = parseDate(d.date);
+    });
+
+    var worlp = color.domain().map(function(name) {
+      return {
+        name: name,
+        values: data.map(function(d) {
+          return {
+            date: d.date,
+            temperature: +d[name]
+          };
+        })
+      };
+    });
+    console.log("datos worlp:",worlp);
+      
+    x.domain(d3.extent(data, function(d) {
+      return d.date;
+    }));
+
+    y.domain([
+      d3.min(worlp, function(c) {
+        return d3.min(c.values, function(v) {
+          return v.temperature;
+        });
+      }),
+      d3.max(worlp, function(c) {
+        return d3.max(c.values, function(v) {
+          return v.temperature;
+        });
+      })
+    ]);
+
+    var legend = svg.selectAll('g')
+      .data(worlp)
+      .enter()
+      .append('g')
+      .attr('class', 'legend');
+
+    /*legend.append('rect')
+      .attr('x', width+45)
+      .attr('y', function(d, i) {
+        return i * 20;
+      })
+      .attr('width',10)
+      .attr('height', 10)
+      .style('fill', function(d) {
+        return color(d.name);
+      });
+   */
+   /* legend.append('text')
+      .attr('x', width + 60)
+      .attr('y', function(d, i) {
+        return (i * 20) + 9;
+      })
+      .text(function(d) {
+        return d.name;
+      });*/
+
+    svg.append("g")
+      .attr("class", "x axis")
+      .attr("transform", "translate(0," + height + ")")
+      .call(xAxis);
+
+    svg.append("g")
+      .attr("class", "y axis")
+      .call(yAxis)
+      .append("text")
+      .attr("transform", "rotate(-90)")
+      .attr("y", 6)
+      .attr("dy", ".71em")
+      .style("text-anchor", "end")
+      .text("Índice de temperatura tierra-océano, LOTI");
+
+    var city = svg.selectAll(".city")
+      .data(worlp)
+      .enter().append("g")
+      .attr("class", "city");
+
+    city.append("path")
+      .attr("class", "line")
+      .attr("d", function(d) {
+        return line(d.values);
+      })
+      .style("stroke", function(d) {
+        return color(d.name);
+      });
+
+    city.append("text")
+      .datum(function(d) {
+        return {
+          name: d.name,
+          value: d.values[d.values.length - 1]
+        };
+      })
+      .attr("transform", function(d) {
+        return "translate(" + x(d.value.date) + "," + y(d.value.temperature) + ")";
+      })
+      .attr("x", 3)
+      .attr("dy", ".35em")
+      .text(function(d) {
+        return d.name;
+      });
+
+    var mouseG = svg.append("g")
+      .attr("class", "mouse-over-effects");
+
+    mouseG.append("path") // this is the black vertical line to follow mouse
+      .attr("class", "mouse-line")
+      .style("stroke", "black")
+      .style("stroke-width", "1px")
+      .style("opacity", "0");
+      
+    var lines = document.getElementsByClassName('line');
+
+    var mousePerLine = mouseG.selectAll('.mouse-per-line')
+      .data(worlp)
+      .enter()
+      .append("g")
+      .attr("class", "mouse-per-line");
+
+    mousePerLine.append("circle")
+      .attr("r", 7)
+      .style("stroke", function(d) {
+        return color(d.name);
+      })
+      .style("fill", "none")
+      .style("stroke-width", "1px")
+      .style("opacity", "0");
+
+    mousePerLine.append("text")
+      .attr("transform", "translate(10,3)");
+
+    mouseG.append('svg:rect') // append a rect to catch mouse movements on canvas
+      .attr('width', width) // can't catch mouse events on a g element
+      .attr('height', height)
+      .attr('fill', 'none')
+      .attr('pointer-events', 'all')
+      .on('mouseout', function() { // on mouse out hide line, circles and text
+        d3.select(".mouse-line")
+          .style("opacity", "0");
+        d3.selectAll(".mouse-per-line circle")
+          .style("opacity", "0");
+        d3.selectAll(".mouse-per-line text")
+          .style("opacity", "0");
+      })
+      .on('mouseover', function() { // on mouse in show line, circles and text
+        d3.select(".mouse-line")
+          .style("opacity", "1");
+        d3.selectAll(".mouse-per-line circle")
+          .style("opacity", "1");
+        d3.selectAll(".mouse-per-line text")
+          .style("opacity", "1");
+      })
+      .on('mousemove', function() { // mouse moving over canvas
+        var mouse = d3.mouse(this);
+        d3.select(".mouse-line")
+          .attr("d", function() {
+            var d = "M" + mouse[0] + "," + height;
+            d += " " + mouse[0] + "," + 0;
+            return d;
+          });
+
+        d3.selectAll(".mouse-per-line")
+          .attr("transform", function(d, i) {
+            console.log(width/mouse[0])
+            var xDate = x.invert(mouse[0]),
+                bisect = d3.bisector(function(d) { return d.date; }).right;
+                idx = bisect(d.values, xDate);
+            
+            var beginning = 0,
+                end = lines[i].getTotalLength(),
+                target = null;
+
+            while (true){
+              target = Math.floor((beginning + end) / 2);
+              pos = lines[i].getPointAtLength(target);
+              if ((target === end || target === beginning) && pos.x !== mouse[0]) {
+                  break;
+              }
+              if (pos.x > mouse[0])      end = target;
+              else if (pos.x < mouse[0]) beginning = target;
+              else break; //position found
+            }
+            
+            d3.select(this).select('text')
+              .text(y.invert(pos.y).toFixed(2));
+              
+            return "translate(" + mouse[0] + "," + pos.y +")";
+          });
+      });
+      
+  </script>
+<div style="margin-left:45px; width:80%;">
+<h1>Insights</h1>
+<p>
+    1.	El índice muestra que durante los años de 1959 a 2017, el comportamiento de la temperatura ha aumentado del 0.03 al 0.90, lo que representa un cambio en puntos porcentuales 0.87 con tendencia positiva.<br></br>
+    2.	En general en el hemisferio norte se presenta un mayor aumento en la temperatura, sin embargo, en las décadas del 70 y 80 el hemisferio
+        sur superó al hemisferio norte.<br></br>Lo anterior, tiene sentido dado que el hemisferio norte está compuesto por 160 países y el hemisferio sur por 48.<br></br>
+    3.	Cabe resaltar que desde el año 2011 al 2017, el hemisferio norte tuvo un aumento significativo en la temperatura de 0.42 puntos porcentuales.<br></br>
+    4.	El aumento continuo de la temperatura media de la tierra no es refutable, dado los resultados del índice LOTI.<br></br>
+    5.	El aumento de los gases efecto invernadero producido por la acción humana ocasiona el aumento de la temperatura media de la tierra.<br></br>
+Por los puntos anteriores es válida la iniciativa como el Acuerdo de Paris promovido por la Naciones Unidas sobre el cambio climático con el fin de reducir los gases efecto invernadero, firmado el 22 de abril de 2015 por 197 países (https://es.wikipedia.org/wiki/Acuerdo_de_Par%C3%ADs), entre ellos Colombia. A pesar de que uno de los firmantes Estados Unidos EE. UU., con el gobierno de Trump se retiró, las acciones de dicho acuerdo siguen en firme por los países 97 países que ratificaron su firma.
+
+
+</p>    
+
+</div>
+
+</body>
+
+</html>
