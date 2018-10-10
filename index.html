@@ -123,13 +123,13 @@ console.log("data",myData);
     var color=d3.scaleOrdinal(d3.schemeCategory10);
 
     var xAxis = d3.axisBottom()
-      .scale(x);
+      .scale(x)
+      .tickFormat(d3.timeFormat("%Y"));
 
     var yAxis = d3.axisLeft()
       .scale(y);
 
     var line = d3.line()
-      //.interpolate("basis")
       .x(function(d) {return x(d.date);})
       .y(function(d) {return y(d.temperature);});
 
@@ -246,19 +246,20 @@ console.log("data",myData);
       .attr("transform", function(d) {
         return "translate(" + x(d.value.date) + "," + y(d.value.temperature) + ")";
       })
-      .attr("x", 3)
-      .attr("dy", ".35em")
+      .attr("x", 4)
+      .attr("dy", ".45em")
       .text(function(d) {
         return d.name;
-      });
+      })
+      .style("font-size", "11px");
 
     var mouseG = svg.append("g")
       .attr("class", "mouse-over-effects");
 
     mouseG.append("path") // this is the black vertical line to follow mouse
       .attr("class", "mouse-line")
-      .style("stroke", "black")
-      .style("stroke-width", "1px")
+      .style("stroke", "steelblue")
+      .style("stroke-width", "2px")
       .style("opacity", "0");
       
     var lines = document.getElementsByClassName('line');
@@ -355,7 +356,7 @@ Por los puntos anteriores es válida la iniciativa como el Acuerdo de Paris prom
 </p>    
 <h1>Framework Tamara - What, Why y What</h1>
 <p> <b>What:  </b><br> </br>
-    Tabla (Items,Atributos). <b>Items:  </b>Índice de temperatura terrestre y oceánica, LOTI desde 1880 – 2017 por hemisferios, Global y latitudes. 138 registros <br></br>
+    Tipo dataset: Temporal <b>Items:  </b>Índice de temperatura terrestre y oceánica, LOTI desde 1880 – 2017 por hemisferios, Global y latitudes. 138 registros <br></br>
 <b>Atributos: </b>Year	Ordenado Ordinal,Glob	Ordenado Cuantitativo divergente,NHem	Ordenado Cuantitativo divergente,SHem	Ordenado Cuantitativo divergente<br></br>
 <b>Why: </b>(Actions, Targets)<br></br>
 <b>Tarea principal:</b><br></br>
@@ -370,7 +371,7 @@ Data: 4 atributos<br></br>
 Marcas: linea/punto<br></br>
 Canales:<br></br>
 Canal de magnitud-> Atributos ordenados -> Posición en escala común.<br></br>
-Arrange -> Express, el atributo valor (global,Nhem, Shem)en posición alineada vertical.<br></br>
+Arrange -> Express, porque los atributos son cuantitativos (global,Nhem, Shem) en posición alineada vertical.<br></br>
 Separar y ordenar el atributo key (Year) en la región horizontal.<br></br>
 Map : Color Hue <br></br>
 Manipulate: Select <br></br>
